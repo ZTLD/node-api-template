@@ -1,12 +1,12 @@
 const User = require('../models/User');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Record = require('../models/Record');
 const SECRET_KEY = 'my_secret_key';
 // 注册
 exports.register = async (req, res) => {
   const { username, password } = req.body;
-  const hash = await bcrypt.hash(password, 10);
+  const hash = await bcryptjs.hash(password, 10);
   try {
     const user = new User({ username, password: hash });
     await user.save();
@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
   const user = await User.findOne({ username });
   if (!user) return res.status(401).json({ error: '账号错误' });
 
-  const match = await bcrypt.compare(password, user.password);
+  const match = await bcryptjs.compare(password, user.password);
   if (!match) return res.status(401).json({ error: '密码错误' });
 
   const token = jwt.sign({ id: user._id }, SECRET_KEY, { expiresIn: '2h' });
